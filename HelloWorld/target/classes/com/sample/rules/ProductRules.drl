@@ -1,0 +1,57 @@
+package com.sample.rules
+ 
+ //global java.util.List <Product> productList = new ArrayList<Product>();
+ global java.util.Map map
+ global java.util.Set productSet
+
+import com.sample.ProductSummary;
+import java.util.List;
+import java.util.LinkedList;
+import com.sample.Product;
+import com.sample.OrderUtil;
+ 
+rule "Total Order Calculation"
+salience 101
+when
+ $ps:ProductSummary()
+ $total : Number()
+	from accumulate( $p : Product( storeName=="Amazon",$cost:cost ) from $ps.products,
+                 		sum($cost) )
+   then
+        
+ System.out.println( "Total Order Value is INR "+$total );
+ productSet=OrderUtil.getProductNames($ps);
+ System.out.println( "Set Values are  "+productSet );
+ 
+ end
+   
+ rule "Least price item product details."
+ dialect "java" 
+ salience 100
+when
+ $ps:ProductSummary()
+ $min : Number()
+	from accumulate( $p : Product(name=="Lizol 500 ml" ,$cost:cost ) from $ps.products,
+                		min($cost) )            		
+ $leastPriceProduct : Product(name=="Lizol 500 ml",cost==$min) from $ps.products
+    		
+    then
+        
+ //System.out.println( "Least item  name==>"+$leastPriceProduct);
+
+ Product product = $leastPriceProduct;  
+ System.out.println("Storename is==> "+product.getStoreName());
+ System.out.println("Cost is ==>"+product.getCost());
+ 
+ end
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+         
